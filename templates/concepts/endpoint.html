@@ -1,0 +1,57 @@
+{% extends 'concepts/base.html'%}
+{% load static %}
+{% block content %}
+<!--     <div class = "container">
+      <br>
+      <h2 class = "text-center">Zoek door begrippen</h2> 
+      <br>
+      <form method="GET">
+        <input type = "text" name = "name" placeholder="Search..." class = "text-center">
+        <button type = "submit" class = "btn-danger btn-sm">Zoek begrip</button>
+      </form> 
+    </div>  
+    <br><br> -->
+<div>
+    <h1>Upload skos concepten</h1>
+    <br></br>
+    <div>Standaard is het endpoint  "http://localhost:8080/edg/tbl/graphql/begrippenkader_algemeen_politiewerk" geconfigureerd</div>
+    <div>Je kan hier het endpoint wisselen</div>
+
+    <form  method="post" novalidate>
+        {% csrf_token %}
+        <!-- <label for="endpoint">Stel het endpoint in waartegen de geuploadde definities gematched moeten worden</label>
+    <input  type="text" value="{{current_endpoint}}" placeholder="http://localhost:8080/edg/tbl/graphql/begrippenkader_algemeen_politiewerk">
+            </input>
+    <button type = "submit"> Stel endpoint in en haal concepten op </button> -->
+    {{ form }}
+    <button type="submit">Submit</button>
+    </form>
+
+   
+
+   <!--  <form action="{% url "main:upload" %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file"
+               title="Upload excel file"
+               name="file"
+               style="border: 1px solid black; padding: 5px;"
+               required="required">
+        <p>
+        <input type="submit"
+               value="Upload"
+               style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">
+    </form> -->
+
+    
+   <!--  <p></p>
+    <hr>
+
+    {% for row in excel_data %}
+        {% for cell in row %}
+            {{ cell }}&nbsp;&nbsp;
+        {% endfor %}
+        <br>
+    {% endfor %} -->
+    
+</div>
+{% endblock %}

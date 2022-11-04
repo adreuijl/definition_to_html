@@ -1,0 +1,32 @@
+{% extends 'concepts/base.html'%}
+{% load static %}
+{% block content %}
+
+
+<h1>Welkom bij de SEMA definition to html app</h1>
+
+<h2>Hier kan je in een aantal stappen je definities matchen tegen een in te stellen endpoint/database</h2>
+<br>
+<p>De stappen zijn als volgt:
+    <ul>
+        <li>
+            Stel het endpoint in van de bron waartegen definities gematched gaan worden
+            <a href="{% url 'main:endpoint' %}">Set endpoint</a>
+    </li>
+    <li>Upload je ttl file van begrippen uit jouw nieuw gemaakte begrippenkader
+        <a href="{% url 'main:upload' %}">Upload turtle file</a>
+    </li>
+    <li>
+        Klik op de button: Maak Match
+        <button type="submit" onclick=location.href='{% url 'main:maakmatch' %}'>Maak Match</button>
+    </li>
+
+    <li>Bekijk de resultaten van de match en pas deze waar-nodig handmatig aan, exporteer ze daarna om ze te uploaden naar EDG
+        <a href="{% url 'main:concepts' %}">Check Concepts</a>
+    </li>
+</ul>
+</p>
+
+
+
+{% endblock %}

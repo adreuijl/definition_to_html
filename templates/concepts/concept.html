@@ -1,0 +1,74 @@
+{% extends 'concepts/base.html'%}
+{% load static %}
+{% block content %} 
+<!--     <div class = "container">
+      <br>
+      <h2 class = "text-center">Zoek door begrippen</h2> 
+      <br>
+      <form method="GET">
+        <input type = "text" name = "name" placeholder="Search..." class = "text-center">
+        <button type = "submit" class = "btn-danger btn-sm">Zoek begrip</button>
+      </form> 
+    </div>  
+    <br><br> -->
+<div>
+ <div>
+     <h1>
+      <button  onclick=location.href='{% url 'main:export' %}'>Export</button>
+     </h1>
+  <!--      
+          <table >
+            <tr>
+              <th>uri</th>
+              <th>prefLabel</th>
+              <th>definition</th>
+            </tr>
+            {% for concept in all_concepts %}
+            <tr>
+              <td>{{ concept.uri }}</td>
+              <td>{{ concept.prefLabel }}</td>
+              <td><form method="post" novalidate><textarea name="Text1" cols="80" rows="5">{{concept.definition}}</textarea> <button type="submit" >Pas aan</button></form></td>
+            </tr>
+       
+           
+      {% endfor %}
+      
+     
+
+    </div> -->
+
+  <!--   <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form}}
+      <button type="submit" >Pas aan</button>
+    </form> -->
+
+    
+      <table >
+        <tr>
+          <th>uri</th>
+          <th>prefLabel</th>
+          <th>definition</th>
+        </tr>
+        {% for concept in form %}
+        <form method="post" novalidate>
+          {% csrf_token %}
+        <tr>
+          <td name="uri">
+          <label disabled  name="uri" id="" cols="100" rows="8">{{ concept.uri }}</label>
+          </td>
+          <td >
+          <label disabled  name="preflabel" id="" cols="60" rows="8">{{ concept.prefLabel }}</label>  </td>
+          <td>
+          <textarea name="definition" cols="100" rows="5">{{concept.definition}}</textarea> 
+          
+          
+          <button type="submit" >Pas aan</button></form></td>
+      </tr>
+ 
+     
+{% endfor %}
+
+    
+  </div>
+{% endblock %}

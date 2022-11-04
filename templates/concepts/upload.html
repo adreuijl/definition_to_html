@@ -1,0 +1,36 @@
+{% extends 'concepts/base.html'%}
+{% load static %}
+{% block content %}
+<!--     <div class = "container">
+      <br>
+      <h2 class = "text-center">Zoek door begrippen</h2> 
+      <br>
+      <form method="GET">
+        <input type = "text" name = "name" placeholder="Search..." class = "text-center">
+        <button type = "submit" class = "btn-danger btn-sm">Zoek begrip</button>
+      </form> 
+    </div>  
+    <br><br> -->
+<div>
+    <h1>Upload skos concepten</h1>
+    <br></br>
+    <div>De upload file bevat de concepten die je wilt matchen tegen de bestaande database en moet tenminste deze kolommen bevatten</div>
+    
+
+
+    <form action="{% url "main:upload" %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file"
+               title="Upload excel file"
+               name="file"
+               style="border: 1px solid black; padding: 5px;"
+               required="required">
+        <p>
+        <input type="submit"
+               value="Upload"
+               style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">
+    </form>
+
+
+</div>
+{% endblock %}
