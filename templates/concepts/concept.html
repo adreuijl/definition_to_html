@@ -50,20 +50,23 @@
           <th>prefLabel</th>
           <th>definition</th>
         </tr>
+        <tr>
         {% for concept in form %}
         <form method="post" novalidate>
           {% csrf_token %}
-        <tr>
-          <td name="uri">
-          <label disabled  name="uri" id="" cols="100" rows="8">{{ concept.uri }}</label>
+        
+          <td>
+          <textarea disable name="uri" cols="30" rows="6">{{ concept.uri }}</textarea>
           </td>
           <td >
-          <label disabled  name="preflabel" id="" cols="60" rows="8">{{ concept.prefLabel }}</label>  </td>
+          <textarea disable name="prefLabel"  cols="30" rows="6">{{ concept.prefLabel }}</textarea>  </td>
           <td>
-          <textarea name="definition" cols="100" rows="5">{{concept.definition}}</textarea> 
-          
-          
-          <button type="submit" >Pas aan</button></form></td>
+          <textarea name="definition" cols="180" rows="3">{{concept.definition}}</textarea> 
+          {{concept.definition | safe}}
+          <button type="submit" >Pas aan</button>
+          </td>
+        </form>
+      
       </tr>
  
      

@@ -333,14 +333,12 @@ def set_endpoint(request):
 
 
 def display_edible_definition(request):
-    # if this is a POST request we need to process the form data
     all_concepts = UploadedConcept.objects.all().order_by('prefLabel')
-    
     if request.method == 'POST':
         form = ConceptForm(request.POST)
         # create a form instance and populate it with data from the request:
         print('Form data def: ' + form.data['definition'])
-        print('Form data : ' + form.data['uri'])
+        #print('Form data : ' +  form.data['prefLabel'])
         test = form.data['uri']
         
         definition =form.data['definition']
