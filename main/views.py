@@ -332,7 +332,7 @@ def set_endpoint(request):
     return render(request, 'concepts/endpoint.html', {'form': form})
 
 
-def display_edible_definition(request):
+def display_editable_definition(request):
     all_concepts = UploadedConcept.objects.all().order_by('prefLabel')
     if request.method == 'POST':
         form = ConceptForm(request.POST)

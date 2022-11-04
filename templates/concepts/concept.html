@@ -56,10 +56,10 @@
           {% csrf_token %}
         
           <td>
-          <textarea disable name="uri" cols="30" rows="6">{{ concept.uri }}</textarea>
+          <textarea  name="uri" cols="30" rows="6">{{ concept.uri }}</textarea>
           </td>
           <td >
-          <textarea disable name="prefLabel"  cols="30" rows="6">{{ concept.prefLabel }}</textarea>  </td>
+          <textarea  name="prefLabel"  cols="30" rows="6">{{ concept.prefLabel }}</textarea>  </td>
           <td>
           <textarea name="definition" cols="180" rows="3">{{concept.definition}}</textarea> 
           {{concept.definition | safe}}

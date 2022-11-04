@@ -5,7 +5,7 @@ app_name = "main"
 urlpatterns = [
     path('api/postdefinition', views.uploadedconcept_add),
     path('conceptsapi/', ConceptApi.as_view()),
-    path('concepts/', views.display_edible_definition, name = "concepts"),
+    path('concepts/', views.display_editable_definition, name = "concepts"),
     path('', views.home, name = "home"),
     path('maakmatch', views.makeNewDefinition, name = "maakmatch"),
     path('upload', views.upload, name = "upload"),
