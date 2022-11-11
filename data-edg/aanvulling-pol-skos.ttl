@@ -1,0 +1,176 @@
+# baseURI: urn:x-evn-master:pol-skos
+# imports: http://topbraid.org/skos.shapes
+
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix graphql: <http://datashapes.org/graphql#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix teamwork: <http://topbraid.org/teamwork#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+owl:Ontology
+  dash:resourceAction <urn:x-evn-master:pol-skos/MaakUitgebreideDefinitie> ;
+.
+skos:Collection
+  rdfs:label "Collectie"@nl ;
+.
+skos:Concept
+  dash:resourceAction <urn:x-evn-master:pol-skos/MaakUitgebreideDefinitie> ;
+  rdfs:label "Begrip"@nl ;
+.
+skos:ConceptScheme
+  rdfs:label "Begrippenstelsel"@nl ;
+.
+skos:altLabel
+  rdfs:label "alternatieve term"@nl ;
+.
+skos:broadMatch
+  rdfs:label "overeenkomstig met generieker"@nl ;
+.
+skos:broader
+  rdfs:label "heeft bovenliggend"@nl ;
+.
+skos:changeNote
+  rdfs:label "wijzigingsnotitie"@nl ;
+.
+skos:closeMatch
+  rdfs:label "vrijwel overeenkomstig met"@nl ;
+.
+skos:definition
+  rdfs:label "definitie"@nl ;
+.
+skos:editorialNote
+  rdfs:label "rationale"@nl ;
+.
+skos:exactMatch
+  rdfs:label "exact overeenkomstig met"@nl ;
+.
+skos:example
+  rdfs:label "voorbeeld"@nl ;
+.
+skos:hasTopConcept
+  rdfs:label "heeft topbegrip"@nl ;
+.
+skos:hiddenLabel
+  rdfs:label "zoekterm"@nl ;
+.
+skos:inScheme
+  rdfs:label "behoort tot"@nl ;
+.
+skos:mappingRelation
+  rdfs:label "heeft harmonisatierelatie met"@nl ;
+.
+skos:member
+  rdfs:label "bevat"@nl ;
+.
+skos:narrowMatch
+  rdfs:label "overeenkomstig met specifieker"@nl ;
+.
+skos:notation
+  rdfs:label "code"@nl ;
+.
+skos:prefLabel
+  rdfs:label "voorkeursterm"@nl ;
+.
+skos:related
+  rdfs:label "is gerelateerd aan"@nl ;
+.
+skos:relatedMatch
+  rdfs:label "overeenkomstig verwant met"@nl ;
+.
+skos:scopeNote
+  rdfs:label "toelichting"@nl ;
+.
+skos:semanticRelation
+  rdfs:label "heeft semantische relatie met"@nl ;
+.
+<urn:x-evn-master:pol-skos>
+  a owl:Ontology ;
+  dash:generateClass owl:Ontology ;
+  dash:generateClass skos:Concept ;
+  dash:generatePrefixClasses "sema" ;
+  dash:generatePrefixConstants "sema" ;
+  graphql:publicClass owl:Ontology ;
+  graphql:publicClass skos:Concept ;
+  teamwork:rootClass rdfs:Resource ;
+  rdfs:label "pol-skos"@nl ;
+  owl:imports <http://topbraid.org/skos.shapes> ;
+.
+<urn:x-evn-master:pol-skos/MaakUitgebreideDefinitie>
+  a dash:ModifyAction ;
+  dash:actionGroup <urn:x-evn-master:pol-skos/upload> ;
+  dash:js """let concept = skos.asConcept(focusNode.uri);
+var concepturi= concept.uri
+var conceptdefinition=remove_html(concept.definition[0])
+var conceptpreflabel = concept.prefLabel [0]
+
+function remove_html (input) {
+def = input
+if(input['datatype'] == "http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML") 
+{   def = input['lex']
+    def = def.replace('<div lang="nl">', "")
+    def = def.replace('</div>', "")
+	def = def.replace('<div>', "")
+    print (def)
+    }
+    else {
+    def = input
+    }
+return def
+}
+
+
+var postdata = `{"uri": "${concepturi}","definition": "${conceptdefinition}", "prefLabel": "${conceptpreflabel}"}`
+
+let d = IO.http({
+    url: 'http://localhost:8000/api/postdefinition',
+    method: 'DELETE',
+})  
+
+
+let p = IO.http({
+    url: 'http://localhost:8000/api/postdefinition',
+    method: 'POST',
+    data: postdata,
+    contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+}) 
+
+let r = IO.http({
+    url: 'http://localhost:8000/api/postdefinition',
+    method: 'GET',
+    params: {
+        uri: focusNode.uri
+    },
+    headers: {
+        Accept: 'application/json'
+    },
+    toFileSuffix: 'json'
+}) 
+
+function html(lex) {
+    return new LiteralNode({lex: lex, datatype: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML'});
+}
+
+var def = ""
+u = IO.uploadedFile(r.file)
+let json = JSON.parse(u.text);
+for(const key in json) {
+    const nodes = json[key]
+    def = nodes['definition']
+    new_def = '<div lang="nl">' + def + '</div>'
+    new_def = html(new_def)
+    concept.add('http://www.w3.org/2004/02/skos/core#definition', new_def)
+}
+
+
+
+
+""" ;
+  rdfs:label "Maak uitgebreide definitie" ;
+.
+<urn:x-evn-master:pol-skos/upload>
+  a dash:ActionGroup ;
+  rdfs:label "upload" ;
+.

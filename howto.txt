@@ -1,0 +1,6 @@
+installeer edg
+installeer db brwoser for sql lite
+installeer python django (volg deze tutorial van 1 uur: https://www.youtube.com/watch?v=rHux0gMZ3Eg)
+maak asset collections aan op basis van trig bestand in de folder data-edg
+vul de ontology pol-skos aan met het aanvulling-pol-skos.ttl
+includeer pol-skos ontology bij de begrippenkaders die je wilt kunnen aanvullen
