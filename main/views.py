@@ -1,8 +1,12 @@
-from operator import and_
-from django.shortcuts import render
+
 import requests
 import json
 import pandas as pd
+import lightrdf
+import openpyxl
+import re
+import ast
+
 from main.models import Concept, UploadedConcept
 from pandas import json_normalize
 from flatten_json import flatten
@@ -10,12 +14,8 @@ from pandas import DataFrame, concat
 from html.parser import HTMLParser
 from bs4 import BeautifulSoup
 from django.shortcuts import render
-import openpyxl
 from rdflib import Graph, URIRef, Literal
-import lightrdf
-import re
 from django.db.models.functions import Length
-import ast
 from django.http import HttpResponseRedirect
 from .forms import EndpointForm, ConceptForm
 from rest_framework.decorators import api_view
