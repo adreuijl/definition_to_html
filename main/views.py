@@ -13,6 +13,7 @@ from django.shortcuts import render
 import openpyxl
 from rdflib import Graph, URIRef, Literal
 import lightrdf
+import re
 from django.db.models.functions import Length
 import ast
 from django.http import HttpResponseRedirect
@@ -112,18 +113,33 @@ def makeNewDefinition(request):
                             definitie = definition_first
 
                             match = {'uri_TeVindenLabel': uri_TeVindenLabel, 'teVindenLabel': teVindenLabel , 'uri': uri ,'positie':positie, 'definitie': definitie }
-                            print(match)
+                            #print(match)
                             gevonden_concept = UploadedConcept.objects.get(uri = match['uri'])
                             if gevonden_concept :
                                 try:
                                     definition = gevonden_concept.definition
                                    
-                                    definition = definition.lower()
-                                    definition = definition.replace((' '+match['teVindenLabel'].lower() + ' ') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
-                                    definition = definition.replace((' '+match['teVindenLabel'].lower() + '.') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>.')
-                                    definition = definition.replace((' '+match['teVindenLabel'].lower() + ',') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>,')
-                
-                                    gevonden_concept.definition = definition 
+                                   # definition = definition.lower()
+                                    #definition = definition.replace((' '+match['teVindenLabel'].lower() + ' ') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
+                                   # definition = definition.replace((' '+match['teVindenLabel'].lower() + '.') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>.')
+                                    #definition = definition.replace((' '+match['teVindenLabel'].lower() + ',') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>,')
+
+                            
+                                    hello =  "\s" + match['teVindenLabel']+ "\s" 
+                                    hello2 = "\s" + match['teVindenLabel']+ "[.]" 
+                                    hello3 = "\s" + match['teVindenLabel']+ "[,]" 
+                                    print ('hello =' + hello)
+                                    bye =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
+                                    bye2 =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>. ')
+                                    bye3 =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>, ')
+                                    print ('bye =' + bye)
+                                    
+                                    definition2 = re.sub(hello, bye, definition,flags=re.IGNORECASE )
+                                    definition3 = re.sub(hello2, bye2, definition2,flags=re.IGNORECASE )
+                                    definition4 = re.sub(hello3, bye3, definition3,flags=re.IGNORECASE )
+                                      
+
+                                    gevonden_concept.definition = definition4 
                                     gevonden_concept.save(update_fields=['definition'])
                                 except: 
                                     print("een fout bij het maken van de niewe definitie")
