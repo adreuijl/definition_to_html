@@ -82,7 +82,7 @@ def makeNewDefinition(request):
         dataframe_all = pd.concat([dataframe_all, df], ignore_index = True)
     '''
     #df = df.dropna()
-    table = Concept.objects.all().order_by('order')
+    table = Concept.objects.all().order_by('-order')
     for row1 in table:
         #preflabel = ast.literal_eval(row1.prefLabel)
         preflabel = row1.prefLabel
