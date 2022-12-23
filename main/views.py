@@ -76,11 +76,9 @@ def makeNewDefinition(request):
         preflabel = row1.prefLabel
         teVindenLabel = ""
         try:
-            
             teVindenLabel = preflabel
         except:
             pass
-        
         uri_TeVindenLabel = row1.uri
         for row2 in UploadedConcept.objects.all():
             definition_first = row2.definition
@@ -100,19 +98,11 @@ def makeNewDefinition(request):
                             if gevonden_concept :
                                 try:
                                     definition = gevonden_concept.definition
-                                    hello =  "\s" + match['teVindenLabel']+ "\s" 
-                                    hello2 = "\s" + match['teVindenLabel']+ "[.]" 
-                                    hello3 = "\s" + match['teVindenLabel']+ "[,]" 
-                                    bye =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
-                                    bye2 =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>. ')
-                                    bye3 =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>, ')
-                                    
-                                    definition2 = re.sub(hello, bye, definition,flags=re.IGNORECASE )
-                                    definition3 = re.sub(hello2, bye2, definition2,flags=re.IGNORECASE )
-                                    definition4 = re.sub(hello3, bye3, definition3,flags=re.IGNORECASE )
-  
-                                    gevonden_concept.definition = definition4 
-                                    relatedList =  extract_distinct_links(definition4)
+                                    term =  match['teVindenLabel']
+                                    uri = match['uri_TeVindenLabel']
+                                    result = replace_term(definition, term ,uri )
+                                    gevonden_concept.definition = result 
+                                    relatedList =  extract_distinct_links(result)
                                     gevonden_concept.related = str(relatedList)
                                     print("string? = " + gevonden_concept.related)
                                     gevonden_concept.save(update_fields=['definition', 'related'])
@@ -125,9 +115,23 @@ def makeNewDefinition(request):
     return render(request, 'concepts/home.html') 
 
 
+# deze functie vervangt binnen een definitie een woord voor een link 
+def replace_term(definition, term, uri):
+    hello = r"\s" + term + r"\s"
+    hello2 = r"\s" + term + r"[.]"
+    hello3 = r"\s" + term + r"[,]"
+    bye = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a> '
+    bye2 = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a>. '
+    bye3 = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a>, '
+
+    definition = re.sub(hello, bye, definition, flags=re.IGNORECASE)
+    definition = re.sub(hello2, bye2, definition, flags=re.IGNORECASE)
+    definition = re.sub(hello3, bye3, definition, flags=re.IGNORECASE)
+
+    return definition
 
 
-
+# deze functie haalt de unieke begrippen uit de nieuwe definitie
 def extract_distinct_links(html):
     soup = BeautifulSoup(html, 'html.parser')
     links = set()
@@ -136,23 +140,6 @@ def extract_distinct_links(html):
     return list(links)
 
 
-
-""" 
-def flatten_json(y):
-    out = {}
-    def flatten(x, name=''):
-        if type(x) is dict:
-            for a in x:
-                flatten(x[a], name + a + '_')
-        elif type(x) is list:
-            i = 0
-            for a in x:
-                flatten(a, name + str(i) + '_')
-                i += 1
-        else:
-            out[name[:-1]] = x
-    flatten(y)
-    return out """
 
 
 #deze functie neemt een string waar vermoedelijk html in zit, test deze op html en als die er in zit haalt hij de text eruit
