@@ -162,6 +162,15 @@ for(const key in json) {
     new_def = '<div lang="nl">' + def + '</div>'
     new_def = html(new_def)
     concept.add('http://www.w3.org/2004/02/skos/core#definition', new_def)
+
+	rel=nodes['related']
+	let relatedArr = rel.slice(1, -1).split(',').map(String);
+	for (const key in relatedArr){
+		trimmed = relatedArr[key].trim()
+		uri = trimmed.slice(1, -1)
+		//console.log(uri.ToString())
+		concept.add('http://www.w3.org/2004/02/skos/core#related', skos.createConcept({uri: uri }))
+	}
 }
 
 

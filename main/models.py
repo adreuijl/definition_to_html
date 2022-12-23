@@ -18,6 +18,7 @@ class UploadedConcept(models.Model):
     uri = models.CharField(max_length=100, blank=False)
     definition = models.CharField(max_length=10000, blank=True)
     prefLabel = models.CharField(max_length=100, blank=True)
+    related = models.CharField(max_length=10000, blank=True)
 
     def _str_(self):
         return "DefinitionToHtml: {}".format(self.subject)

@@ -71,37 +71,19 @@ def count_space(Test_string):
     return Test_string.count(" ")
 
 def makeNewDefinition(request):
-    '''
-    all_concepts = Concept.objects.all().order_by(Length('prefLabel').asc())
-    uploaded_concepts = UploadedConcept.objects.all().order_by(Length('prefLabel').asc())
-    
-    dataframe_all = pd.DataFrame(columns = ['uri'])
-    for i in all_concepts:
-        flat = flatten_json(i)
-        df_data = json_normalize(flat)
-        df = pd.DataFrame(df_data) 
-        dataframe_all = pd.concat([dataframe_all, df], ignore_index = True)
-    '''
-    #df = df.dropna()
     table = Concept.objects.all().order_by('-order')
     for row1 in table:
-        #preflabel = ast.literal_eval(row1.prefLabel)
         preflabel = row1.prefLabel
         teVindenLabel = ""
         try:
-            #preflabel_first=preflabel[0]
-            #print(preflabel[0]['string'].lower())
-            #teVindenLabel = preflabel[0]['string'].lower()
+            
             teVindenLabel = preflabel
         except:
             pass
         
-          
         uri_TeVindenLabel = row1.uri
- 
         for row2 in UploadedConcept.objects.all():
             definition_first = row2.definition
-            #print(definition_first)
             if(uri_TeVindenLabel == row2.uri):
                 x=1
             else:
@@ -118,36 +100,41 @@ def makeNewDefinition(request):
                             if gevonden_concept :
                                 try:
                                     definition = gevonden_concept.definition
-                                   
-                                   # definition = definition.lower()
-                                    #definition = definition.replace((' '+match['teVindenLabel'].lower() + ' ') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
-                                   # definition = definition.replace((' '+match['teVindenLabel'].lower() + '.') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>.')
-                                    #definition = definition.replace((' '+match['teVindenLabel'].lower() + ',') , ' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel']  + '</a>,')
-
-                            
                                     hello =  "\s" + match['teVindenLabel']+ "\s" 
                                     hello2 = "\s" + match['teVindenLabel']+ "[.]" 
                                     hello3 = "\s" + match['teVindenLabel']+ "[,]" 
-                                    print ('hello =' + hello)
-                                    bye =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
-                                    bye2 =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>. ')
-                                    bye3 =  (' <a href=\"' +match['uri_TeVindenLabel'].lower() + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>, ')
-                                    print ('bye =' + bye)
+                                    bye =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a> ')
+                                    bye2 =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>. ')
+                                    bye3 =  (' <a href=\"' +match['uri_TeVindenLabel'] + '\" target=\"_blank\" rel=\"noopener\">' + match['teVindenLabel'] + '</a>, ')
                                     
                                     definition2 = re.sub(hello, bye, definition,flags=re.IGNORECASE )
                                     definition3 = re.sub(hello2, bye2, definition2,flags=re.IGNORECASE )
                                     definition4 = re.sub(hello3, bye3, definition3,flags=re.IGNORECASE )
-                                      
-
+  
                                     gevonden_concept.definition = definition4 
-                                    gevonden_concept.save(update_fields=['definition'])
+                                    relatedList =  extract_distinct_links(definition4)
+                                    gevonden_concept.related = str(relatedList)
+                                    print("string? = " + gevonden_concept.related)
+                                    gevonden_concept.save(update_fields=['definition', 'related'])
+                                    gevonden_concept.save()
                                 except: 
                                     print("een fout bij het maken van de niewe definitie")
-
                 except  Exception as e:
                     print(e)
 
     return render(request, 'concepts/home.html') 
+
+
+
+
+
+def extract_distinct_links(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    links = set()
+    for link in soup.find_all('a'):
+        links.add(link.get('href'))
+    return list(links)
+
 
 
 """ 
