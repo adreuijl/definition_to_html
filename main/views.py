@@ -120,9 +120,9 @@ def replace_term(definition, term, uri):
     hello = r"\s" + term + r"\s"
     hello2 = r"\s" + term + r"[.]"
     hello3 = r"\s" + term + r"[,]"
-    bye = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a> '
-    bye2 = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a>. '
-    bye3 = f' <a href="{uri}" target="_blank" rel="noopener">{term}</a>, '
+    bye = f' <a href="{uri}">{term}</a> '
+    bye2 = f' <a href="{uri}">{term}</a>. '
+    bye3 = f' <a href="{uri}">{term}</a>, '
 
     definition = re.sub(hello, bye, definition, flags=re.IGNORECASE)
     definition = re.sub(hello2, bye2, definition, flags=re.IGNORECASE)
