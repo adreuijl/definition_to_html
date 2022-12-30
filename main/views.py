@@ -125,13 +125,13 @@ def makeNewDefinition(request):
 # deze functie vervangt binnen een definitie een woord voor een link 
 def replace_term(definition, term, uri):
     
-    definition = definition.replace((' '+term + ' ') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term + '</a> ')
-    definition = definition.replace((' '+term + '.') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term  + '</a>.')
-    definition = definition.replace((' '+term + ',') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term  + '</a>,')
-    definition = definition.replace((' '+term.lower() + ' ') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower() + '</a> ')
-    definition = definition.replace((' '+term.lower() + '.') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower()  + '</a>.')
-    definition = definition.replace((' '+term.lower() + ',') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower()  + '</a>,')
-    
+    definition = definition.replace((' '+term + ' ') , ' <a href=\"' + uri + '\" >' + term + '</a> ')
+    definition = definition.replace((' '+term + '.') , ' <a href=\"' + uri + '\" >' + term  + '</a>.')
+    definition = definition.replace((' '+term + ',') , ' <a href=\"' + uri + '\" >' + term  + '</a>,')
+    definition = definition.replace((' '+term.lower() + ' ') , ' <a href=\"' + uri + '\">' + term.lower() + '</a> ')
+    definition = definition.replace((' '+term.lower() + '.') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>.')
+    definition = definition.replace((' '+term.lower() + ',') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>,')
+
     return definition
 
 def replace_regex_term(definition, term, uri):
