@@ -54,6 +54,7 @@ def uploadedconcept_add(request):
  
     elif request.method == 'POST':
         UploadedConcept_data = JSONParser().parse(request)
+        print(UploadedConcept_data)
         UploadedConcept_serializer = UploadedConceptSerializer(data=UploadedConcept_data)
 
         if UploadedConcept_serializer.is_valid():
@@ -99,12 +100,18 @@ def makeNewDefinition(request):
                                 try:
                                     definition = gevonden_concept.definition
                                     term =  match['teVindenLabel']
+                                    print("term=" + term)
                                     uri = match['uri_TeVindenLabel']
+                                    
                                     result = replace_term(definition, term ,uri )
+                                    print (result)
                                     gevonden_concept.definition = result 
                                     relatedList =  extract_distinct_links(result)
                                     gevonden_concept.related = str(relatedList)
                                     print("string? = " + gevonden_concept.related)
+
+
+                                    
                                     gevonden_concept.save(update_fields=['definition', 'related'])
                                     gevonden_concept.save()
                                 except: 
@@ -117,6 +124,17 @@ def makeNewDefinition(request):
 
 # deze functie vervangt binnen een definitie een woord voor een link 
 def replace_term(definition, term, uri):
+    
+    definition = definition.replace((' '+term + ' ') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term + '</a> ')
+    definition = definition.replace((' '+term + '.') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term  + '</a>.')
+    definition = definition.replace((' '+term + ',') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term  + '</a>,')
+    definition = definition.replace((' '+term.lower() + ' ') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower() + '</a> ')
+    definition = definition.replace((' '+term.lower() + '.') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower()  + '</a>.')
+    definition = definition.replace((' '+term.lower() + ',') , ' <a href=\"' + uri.lower() + '\" target=\"_blank\" rel=\"noopener\">' + term.lower()  + '</a>,')
+    
+    return definition
+
+def replace_regex_term(definition, term, uri):
     hello = r"\s" + term + r"\s"
     hello2 = r"\s" + term + r"[.]"
     hello3 = r"\s" + term + r"[,]"
