@@ -5,7 +5,7 @@ from django.forms import ModelForm
 # Create your models here.
 class Concept(models.Model): 
     uri = models.CharField(max_length=100, blank=False)
-    definition = models.CharField(max_length=10000, blank=True)
+    definition = models.CharField(max_length=100000, blank=True)
     prefLabel = models.CharField(max_length=100, blank=True)
     definitionNoHtml = models.CharField(max_length=10000, blank=True)
     definitionHtml = models.CharField(max_length=10000, blank=True)
