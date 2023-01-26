@@ -25,6 +25,7 @@ from rest_framework import status
 from main.serializers import UploadedConceptSerializer
 from rdflib.namespace import SKOS, RDF
 from pathlib import Path 
+from fuzzywuzzy import fuzz
 
 endpoint = "http://localhost:8083/tbl/graphql/begrippenkader_algemeen_politiewerk"
 
@@ -54,7 +55,7 @@ def uploadedconcept_add(request):
  
     elif request.method == 'POST':
         UploadedConcept_data = JSONParser().parse(request)
-        print(UploadedConcept_data)
+        print(request)
         UploadedConcept_serializer = UploadedConceptSerializer(data=UploadedConcept_data)
 
         if UploadedConcept_serializer.is_valid():
@@ -71,7 +72,124 @@ def uploadedconcept_add(request):
 def count_space(Test_string):
     return Test_string.count(" ")
 
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.uri = None
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.uri = None
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+        self.terms_uris = []
+
+    def insert(self, word, uri):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        self.terms_uris.append((word.casefold(),uri))
+        node.uri = uri
+        self.terms_uris = sorted(self.terms_uris, key=lambda x: x[0].count(' '), reverse=True)
+
+    def search(self, word):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        if node.uri:
+            return node.uri
+        else:
+            for char in ".,;:!?":
+                if char in node.children:
+                    node = node.children[char]
+                    return node.uri
+        return None
+
+    def get_uri(self,term):
+        node = self.root
+        for char in term:
+            if char in node.children:
+                node = node.children[char]
+            else:
+                return None
+        return node.uri
+        
+trie = Trie()
+
+
+def replace_terms_approximation(definition, trie): 
+    words = definition.split()
+    for i in range(len(words)):
+        word = words[i]
+        casefolded_word = word.casefold()
+        best_match = None
+        best_ratio = 0
+        for term, uri in trie.terms_uris:
+            ratio = fuzz.ratio(casefolded_word, term)
+            if ratio > best_ratio:
+                best_match = term
+                best_ratio = ratio
+        if best_ratio > 87:
+            uri = trie.get_uri(best_match)
+            words[i] = f'<a href="{uri}">{word}</a>'
+    return ' '.join(words)
+
+def replace_terms(definition, trie):
+    """
+    Replaces multiple terms in a definition with clickable links.
+    Preserves the original capitalization of the terms in the definition.
+
+    Args:
+    definition (str): The definition to be modified.
+    trie (Trie): A Trie containing the terms and their corresponding URIs.
+
+    Returns:
+    str: The modified definition with the terms replaced with clickable links.
+    """
+    words = definition.split()
+    for i in range(len(words)):
+        # Convert the word to lowercase before searching the Trie
+        casefolded_word = words[i].casefold()
+        uri = trie.search(casefolded_word)
+        if uri is not None:
+            # Check if the next character in the definition is a "," or a "."
+            if i < len(words) - 1 and (words[i+1] == ',' or words[i+1] == '.'):
+                words[i] = f'<a href="{uri}">{words[i]}{words[i+1]}</a>'
+                words[i+1] = ""
+            else:
+                words[i] = f'<a href="{uri}">{words[i]}</a>'
+    return ' '.join(words)
+
+# Create the Trie
+trie = Trie()
+
+
 def makeNewDefinition(request):
+    for row in Concept.objects.all().order_by('-order'):
+        term = row.prefLabel
+        uri = row.uri
+        trie.insert(term, uri)
+        term = row.prefLabel.lower()
+        trie.insert(term, uri)
+    for row2 in UploadedConcept.objects.all():
+            if(uri != row2.uri):
+                definition_first = row2.definition
+                modified_definition = replace_terms(definition_first, trie)
+                gevonden_concept = UploadedConcept.objects.get(uri = row2.uri)
+                if gevonden_concept :
+                    gevonden_concept.definition = modified_definition
+                    gevonden_concept.save(update_fields=['definition'])
+    return render(request, 'concepts/home.html') 
+
+""" def makeNewDefinition(request):
+   
     table = Concept.objects.all().order_by('-order')
     for row1 in table:
         preflabel = row1.prefLabel
@@ -100,15 +218,15 @@ def makeNewDefinition(request):
                                 try:
                                     definition = gevonden_concept.definition
                                     term =  match['teVindenLabel']
-                                    print("term=" + term)
+                                    #print("term=" + term)
                                     uri = match['uri_TeVindenLabel']
                                     
-                                    result = replace_term(definition, term ,uri )
-                                    print (result)
+                                    result = replace_regex_term(definition, term ,uri )
+                                    #print ('matching resultaat =' + result)
                                     gevonden_concept.definition = result 
                                     relatedList =  extract_distinct_links(result)
                                     gevonden_concept.related = str(relatedList)
-                                    print("string? = " + gevonden_concept.related)
+                                    #print("string? = " + gevonden_concept.related)
 
 
                                     
@@ -128,26 +246,35 @@ def replace_term(definition, term, uri):
     definition = definition.replace((' '+term + ' ') , ' <a href=\"' + uri + '\" >' + term + '</a> ')
     definition = definition.replace((' '+term + '.') , ' <a href=\"' + uri + '\" >' + term  + '</a>.')
     definition = definition.replace((' '+term + ',') , ' <a href=\"' + uri + '\" >' + term  + '</a>,')
+   # definition = definition.replace((term + ' ') , ' <a href=\"' + uri + '\" >' + term + '</a> ')
+   # definition = definition.replace((term + '.') , ' <a href=\"' + uri + '\" >' + term  + '</a>.')
+   # definition = definition.replace((term + ',') , ' <a href=\"' + uri + '\" >' + term  + '</a>,')
     definition = definition.replace((' '+term.lower() + ' ') , ' <a href=\"' + uri + '\">' + term.lower() + '</a> ')
     definition = definition.replace((' '+term.lower() + '.') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>.')
     definition = definition.replace((' '+term.lower() + ',') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>,')
+   # definition = definition.replace((term.lower() + ' ') , ' <a href=\"' + uri + '\">' + term.lower() + '</a> ')
+   # definition = definition.replace((term.lower() + '.') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>.')
+   # definition = definition.replace((term.lower() + ',') , ' <a href=\"' + uri + '\" >' + term.lower()  + '</a>,')
 
     return definition
 
 def replace_regex_term(definition, term, uri):
-    hello = r"\s" + term + r"\s"
-    hello2 = r"\s" + term + r"[.]"
-    hello3 = r"\s" + term + r"[,]"
-    bye = f' <a href="{uri}">{term}</a> '
-    bye2 = f' <a href="{uri}">{term}</a>. '
-    bye3 = f' <a href="{uri}">{term}</a>, '
+    #hello = r"\s" + term + r"\s"
+    #hello2 = r"\s" + term + r"[.]"
+    #hello3 = r"\s" + term + r"[,]"
+    #bye = f' <a href="{uri}">{term}</a> '
+    #bye2 = f' <a href="{uri}">{term}</a>. '
+    #bye3 = f' <a href="{uri}">{term}</a>, '
 
-    definition = re.sub(hello, bye, definition, flags=re.IGNORECASE)
-    definition = re.sub(hello2, bye2, definition, flags=re.IGNORECASE)
-    definition = re.sub(hello3, bye3, definition, flags=re.IGNORECASE)
+    #definition = re.sub(hello, bye, definition, flags=re.IGNORECASE)
+    #definition = re.sub(hello2, bye2, definition, flags=re.IGNORECASE)
+    #definition = re.sub(hello3, bye3, definition, flags=re.IGNORECASE)
+    #print(definition)
+    replaced_definition = re.sub(r'(?i)\b' + term + r'\b', f'<a href="{uri}">{term}</a>', definition)
+    print('term: ' + term)
+    return replaced_definition
 
-    return definition
-
+"""
 
 # deze functie haalt de unieke begrippen uit de nieuwe definitie
 def extract_distinct_links(html):
